@@ -5,18 +5,13 @@ export function middleware(request: NextRequest) {
   const authCookie = request.cookies.get("auth_token");
   const isAuthRoute = request.nextUrl.pathname.startsWith("/auth");
   const isApiRoute = request.nextUrl.pathname.startsWith("/api");
-  const isRootPath = request.nextUrl.pathname === "/";
 
   if (!authCookie && !isAuthRoute && !isApiRoute) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
   if (authCookie && isAuthRoute) {
-    return NextResponse.redirect(new URL("/(dashboard)", request.url));
-  }
-
-  if (authCookie && isRootPath) {
-    return NextResponse.redirect(new URL("/(dashboard)", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   return NextResponse.next();
