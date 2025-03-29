@@ -59,7 +59,7 @@ func Load() Config {
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
-		jwtSecret = "your-secret-key"
+		jwtSecret = "EXAMPLE_SECRET_KEY_REPLACE_ME"
 	}
 
 	jwtExpiresIn := 24 * time.Hour

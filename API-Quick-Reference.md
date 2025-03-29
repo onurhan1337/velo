@@ -127,7 +127,7 @@ Status: 200 OK
 ```json
 POST /api/auth/reset-password
 {
-  "token": "a1b2c3d4e5f6g7h8i9j0",
+  "token": "EXAMPLE_TOKEN_REPLACE_ME",
   "new_password": "newsecurepassword"
 }
 ```

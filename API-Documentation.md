@@ -182,7 +182,7 @@ Resets a user's password using a token.
 - **Request Body**:
   ```json
   {
-    "token": "a1b2c3d4e5f6g7h8i9j0",
+    "token": "EXAMPLE_TOKEN_REPLACE_ME",
     "new_password": "newsecurepassword"
   }
   ```
