@@ -1,23 +1,22 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
-  BookOpen,
-  Bot,
   Command,
-  Frame,
-  LifeBuoy,
-  Map,
-  PieChart,
-  Send,
+  FileText,
+  BarChart2,
+  Sparkles,
+  Users,
   Settings2,
-  SquareTerminal,
-} from "lucide-react"
+  LifeBuoy,
+  Send,
+  Database,
+} from "lucide-react";
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
+import { NavMain } from "@/components/nav-main";
+import { NavProjects } from "@/components/nav-projects";
+import { NavSecondary } from "@/components/nav-secondary";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -26,7 +25,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 const data = {
   user: {
@@ -36,87 +35,83 @@ const data = {
   },
   navMain: [
     {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
+      title: "Forms",
+      url: "/forms",
+      icon: FileText,
       isActive: true,
       items: [
         {
-          title: "History",
-          url: "#",
+          title: "My Forms",
+          url: "/forms/my-forms",
         },
         {
-          title: "Starred",
-          url: "#",
+          title: "Templates",
+          url: "/forms/templates",
         },
         {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
+          title: "Shared",
+          url: "/forms/shared",
         },
       ],
     },
     {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
+      title: "Analytics",
+      url: "/analytics",
+      icon: BarChart2,
       items: [
         {
-          title: "Introduction",
-          url: "#",
+          title: "Overview",
+          url: "/analytics/overview",
         },
         {
-          title: "Get Started",
-          url: "#",
+          title: "Responses",
+          url: "/analytics/responses",
         },
         {
-          title: "Tutorials",
-          url: "#",
+          title: "Reports",
+          url: "/analytics/reports",
+        },
+      ],
+    },
+    {
+      title: "AI Insights",
+      url: "/ai-insights",
+      icon: Sparkles,
+      items: [
+        {
+          title: "Suggestions",
+          url: "/ai-insights/suggestions",
         },
         {
-          title: "Changelog",
-          url: "#",
+          title: "Form Optimization",
+          url: "/ai-insights/optimization",
+        },
+        {
+          title: "Sentiment Analysis",
+          url: "/ai-insights/sentiment",
         },
       ],
     },
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: Settings2,
       items: [
         {
-          title: "General",
-          url: "#",
+          title: "Account",
+          url: "/settings/account",
         },
         {
-          title: "Team",
-          url: "#",
+          title: "Integrations",
+          url: "/settings/integrations",
         },
         {
           title: "Billing",
-          url: "#",
+          url: "/settings/billing",
         },
         {
-          title: "Limits",
-          url: "#",
+          title: "Team",
+          url: "/settings/team",
         },
       ],
     },
@@ -124,33 +119,28 @@ const data = {
   navSecondary: [
     {
       title: "Support",
-      url: "#",
+      url: "/support",
       icon: LifeBuoy,
     },
     {
       title: "Feedback",
-      url: "#",
+      url: "/feedback",
       icon: Send,
     },
   ],
   projects: [
     {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
+      name: "Form Collections",
+      url: "/collections",
+      icon: Database,
     },
     {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
+      name: "Team Workspace",
+      url: "/team-workspace",
+      icon: Users,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -164,8 +154,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <Command className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Acme Inc</span>
-                  <span className="truncate text-xs">Enterprise</span>
+                  <span className="truncate font-medium">Velo</span>
+                  <span className="truncate text-xs">powered by AI</span>
                 </div>
               </a>
             </SidebarMenuButton>
@@ -181,5 +171,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }
