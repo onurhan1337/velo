@@ -32,7 +32,7 @@ export async function loginAction(formData: LoginInput) {
     if (!response.ok) {
       return {
         success: false,
-        error: responseData.error || "Invalid email or password",
+        error: responseData.error || "Failed to login",
       };
     }
 
@@ -50,6 +50,7 @@ export async function loginAction(formData: LoginInput) {
     return {
       success: true,
       user: responseData.user,
+      token: responseData.token,
     };
   } catch (error) {
     console.error("Login error:", error);

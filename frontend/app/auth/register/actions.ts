@@ -50,6 +50,7 @@ export async function registerAction(formData: RegisterInput) {
     return {
       success: true,
       user: responseData.user,
+      token: responseData.token,
     };
   } catch (error) {
     console.error("Register error:", error);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,66 +17,32 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { profileUpdateSchema, type ProfileUpdateInput } from "@/schemas/auth";
-import { updateProfileAction, logoutAction } from "./actions";
-import { useAuthContext } from "@/components/AuthProvider";
-
-interface ProfileData {
-  id: number;
-  email: string;
-  first_name: string;
-  last_name: string;
-  created_at: string;
-}
+import { updateProfileAction } from "./actions";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { fetchUser } = useAuthContext();
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, logout, isLoading: authLoading } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
-  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [serverError, setServerError] = useState("");
   const [success, setSuccess] = useState("");
+
+  if (!user && !authLoading) {
+    router.push("/auth/login");
+  }
 
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<ProfileUpdateInput>({
     resolver: zodResolver(profileUpdateSchema),
     defaultValues: {
-      first_name: "",
-      last_name: "",
-      email: "",
+      first_name: user?.first_name || "",
+      last_name: user?.last_name || "",
+      email: user?.email || "",
     },
   });
-
-  useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        setIsLoading(true);
-        const userData = await fetchUser();
-
-        if (userData) {
-          const profileData = userData as unknown as ProfileData;
-          setProfile(profileData);
-          reset({
-            first_name: profileData.first_name || "",
-            last_name: profileData.last_name || "",
-            email: profileData.email || "",
-          });
-        } else {
-          router.push("/auth/login");
-        }
-      } catch {
-        setServerError("Failed to load profile data");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadProfile();
-  }, [router, fetchUser, reset]);
 
   const onSubmit = async (data: ProfileUpdateInput) => {
     setIsSaving(true);
@@ -91,16 +57,8 @@ export default function ProfilePage() {
         return;
       }
 
-      if (
-        result.user &&
-        typeof result.user.id === "number" &&
-        typeof result.user.email === "string" &&
-        typeof result.user.created_at === "string"
-      ) {
-        setProfile(result.user as unknown as ProfileData);
-        setSuccess("Profile updated successfully");
-        toast.success("Profile updated successfully");
-      }
+      setSuccess("Profile updated successfully");
+      toast.success("Profile updated successfully");
     } catch (error) {
       setServerError(
         error instanceof Error ? error.message : "An unexpected error occurred"
@@ -113,16 +71,15 @@ export default function ProfilePage() {
 
   const handleLogoutClick = async () => {
     try {
-      await logoutAction();
+      await logout();
       toast.success("Logged out successfully");
-      router.push("/auth/login");
     } catch {
       setServerError("Failed to logout");
       toast.error("Failed to logout");
     }
   };
 
-  if (isLoading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">Loading profile...</div>
@@ -207,8 +164,8 @@ export default function ProfilePage() {
           <CardFooter className="flex justify-between border-t p-4">
             <div className="text-sm text-muted-foreground">
               Account created on{" "}
-              {profile?.created_at
-                ? new Date(profile.created_at).toLocaleDateString()
+              {user?.created_at
+                ? new Date(user.created_at).toLocaleDateString()
                 : "N/A"}
             </div>
             <Button variant="destructive" onClick={handleLogoutClick}>

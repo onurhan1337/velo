@@ -1,7 +1,8 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { AuthProvider } from "@/components/AuthProvider";
+import { AuthInitializer } from "@/components/auth/auth-initializer";
+import { getAuthToken, getCurrentUser } from "@/lib/auth";
 import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -11,18 +12,20 @@ export const metadata: Metadata = {
   description: "Your application description",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const token = await getAuthToken();
+  const user = await getCurrentUser();
+
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>
-          <Toaster position="top-right" richColors />
-          {children}
-        </AuthProvider>
+        <AuthInitializer user={user} token={token} />
+        <Toaster position="top-center" richColors />
+        {children}
       </body>
     </html>
   );

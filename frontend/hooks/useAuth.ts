@@ -1,139 +1,111 @@
-import { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
+"use client";
 
-interface User {
-  id: number;
-  email: string;
-  first_name?: string;
-  last_name?: string;
-  created_at: string;
-}
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore";
+import { loginAction } from "@/app/auth/login/actions";
+import { registerAction } from "@/app/auth/register/actions";
+import { logoutAction } from "@/app/auth/logout/actions";
+import type { LoginInput, RegisterInput } from "@/schemas/auth";
 
 export function useAuth() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    user,
+    token,
+    isAuthenticated,
+    isLoading,
+    error,
+    login: storeLogin,
+    logout: storeLogout,
+    setLoading,
+    setError,
+    clearError,
+  } = useAuthStore();
 
-  const fetchUser = useCallback(async () => {
+  const login = async (data: LoginInput) => {
     try {
       setLoading(true);
-      setError(null);
+      clearError();
 
-      const response = await fetch("/api/profile", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+      const result = await loginAction(data);
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          setUser(null);
-          return null;
-        }
-        throw new Error("Failed to fetch user");
+      if (result.success && result.user && result.token) {
+        storeLogin(result.user, result.token);
+        router.push("/dashboard");
+        return true;
+      } else {
+        setError(result.error || "Login failed");
+        return false;
       }
-
-      const userData = await response.json();
-      setUser(userData);
-      return userData;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch user");
-      setUser(null);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const login = useCallback(async (email: string, password: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Invalid email or password");
-      }
-
-      setUser(data.user);
-      return data.user;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const logout = useCallback(async () => {
-    try {
-      setLoading(true);
-
-      await fetch("/api/auth/logout", {
-        method: "POST",
-      });
-
-      setUser(null);
-      router.push("/auth/login");
-      return true;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Logout failed");
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred"
+      );
       return false;
     } finally {
       setLoading(false);
     }
-  }, [router]);
+  };
 
-  const register = useCallback(
-    async (userData: {
-      email: string;
-      password: string;
-      first_name: string;
-      last_name: string;
-    }) => {
-      try {
-        setLoading(true);
-        setError(null);
+  const register = async (data: RegisterInput) => {
+    try {
+      setLoading(true);
+      clearError();
 
-        const response = await fetch("/api/auth/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(userData),
-        });
+      const result = await registerAction(data);
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Registration failed");
-        }
-
-        setUser(data.user);
-        return data.user;
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Registration failed");
-        return null;
-      } finally {
-        setLoading(false);
+      if (result.success && result.user && result.token) {
+        storeLogin(result.user, result.token);
+        router.push("/dashboard");
+        return true;
+      } else {
+        setError(result.error || "Registration failed");
+        return false;
       }
-    },
-    []
-  );
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred"
+      );
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      setLoading(true);
+      clearError();
+
+      const result = await logoutAction();
+
+      if (result.success) {
+        storeLogout();
+        router.push("/auth/login");
+        return true;
+      } else {
+        setError(result.error || "Logout failed");
+        return false;
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred"
+      );
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return {
     user,
-    loading,
+    token,
+    isAuthenticated,
+    isLoading,
     error,
-    fetchUser,
     login,
-    logout,
     register,
-    isAuthenticated: !!user,
+    logout,
+    clearError,
   };
 }
