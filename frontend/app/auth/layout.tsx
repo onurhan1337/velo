@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
+import { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "Authentication",
   description: "Authentication pages for your account.",
 };
 
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export const dynamic = "force-dynamic";
+
+export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
       <div className="w-full max-w-md">

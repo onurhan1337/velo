@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   description: "Your application description",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function RootLayout({
   children,
 }: {

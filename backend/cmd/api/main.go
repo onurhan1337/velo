@@ -29,6 +29,8 @@ func main() {
 	passwordResetHandler := handlers.NewPasswordResetHandler()
 
 	router := mux.NewRouter()
+	
+	router.Use(middleware.CorsMiddleware)
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Welcome to Velo API!")

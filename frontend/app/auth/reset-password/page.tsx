@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -18,38 +18,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { resetPasswordSchema, type ResetPasswordInput } from "@/schemas/auth";
 import { resetPasswordAction } from "../actions";
+import { useAuth } from "@/hooks/useAuth";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isLoading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [token, setToken] = useState("");
   const [serverError, setServerError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  const tokenParam = searchParams?.get("token") || "";
+  const hasValidToken = !!tokenParam;
 
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<ResetPasswordInput>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      token: "",
+      token: tokenParam,
       new_password: "",
       confirm_password: "",
     },
   });
-
-  useEffect(() => {
-    const tokenParam = searchParams?.get("token");
-    if (tokenParam) {
-      setToken(tokenParam);
-      setValue("token", tokenParam);
-    } else {
-      setServerError("Invalid or missing reset token");
-    }
-  }, [searchParams, setValue]);
 
   const onSubmit = async (data: ResetPasswordInput) => {
     setIsLoading(true);
@@ -66,7 +59,6 @@ export default function ResetPasswordPage() {
       setSuccess(true);
       toast.success("Password reset successfully");
 
-      // Redirect to login after 3 seconds
       setTimeout(() => {
         router.push("/auth/login");
       }, 3000);
@@ -78,6 +70,30 @@ export default function ResetPasswordPage() {
       setIsLoading(false);
     }
   };
+
+  if (!hasValidToken && !serverError) {
+    setServerError("Invalid or missing reset token");
+  }
+
+  if (authLoading) {
+    return (
+      <>
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">
+            Reset Password
+          </CardTitle>
+          <CardDescription className="text-center">Loading...</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-center py-8">
+            <div className="animate-pulse">
+              Loading authentication status...
+            </div>
+          </div>
+        </CardContent>
+      </>
+    );
+  }
 
   return (
     <>
@@ -110,7 +126,7 @@ export default function ResetPasswordPage() {
                 id="new_password"
                 type="password"
                 placeholder="••••••••"
-                disabled={isLoading || !token}
+                disabled={isLoading || !hasValidToken}
                 aria-invalid={!!errors.new_password}
                 {...register("new_password")}
               />
@@ -126,7 +142,7 @@ export default function ResetPasswordPage() {
                 id="confirm_password"
                 type="password"
                 placeholder="••••••••"
-                disabled={isLoading || !token}
+                disabled={isLoading || !hasValidToken}
                 aria-invalid={!!errors.confirm_password}
                 {...register("confirm_password")}
               />
@@ -139,7 +155,7 @@ export default function ResetPasswordPage() {
             <Button
               type="submit"
               className="w-full"
-              disabled={isLoading || !token}
+              disabled={isLoading || !hasValidToken}
             >
               {isLoading ? "Resetting password..." : "Reset password"}
             </Button>
@@ -157,5 +173,33 @@ export default function ResetPasswordPage() {
         </div>
       </CardFooter>
     </>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <>
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">
+              Reset Password
+            </CardTitle>
+            <CardDescription className="text-center">
+              Loading...
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-center py-8">
+              <div className="animate-pulse">
+                Loading password reset form...
+              </div>
+            </div>
+          </CardContent>
+        </>
+      }
+    >
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

@@ -27,10 +27,6 @@ export default function ProfilePage() {
   const [serverError, setServerError] = useState("");
   const [success, setSuccess] = useState("");
 
-  if (!user && !authLoading) {
-    router.push("/auth/login");
-  }
-
   const {
     register,
     handleSubmit,
@@ -83,6 +79,15 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">Loading profile...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    router.push("/auth/login");
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        Redirecting...
       </div>
     );
   }

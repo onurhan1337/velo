@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 
 export function AuthStatus() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
